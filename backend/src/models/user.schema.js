@@ -4,12 +4,12 @@ const userSchema = new mongoose.Schema(
   {
     email: {
       type: String,
-      required: true,
+      required: [true, "Please add your email"],
       unique: true,
     },
     fullName: {
       type: String,
-      required: true,
+      required: [true, "Please add a fullname"],
     },
     profileImg: {
       type: String,
@@ -17,8 +17,9 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: [true, "Please add a password"],
       unique: true,
+      minLength: [6, "The password is too short!"],
     },
   },
   { timestamps: true }
