@@ -97,14 +97,26 @@ const logout = async (req, res) => {
 
 const updateImg = async (req, res) => {
   const { profileImg } = req.body;
+
   try {
+    const userId = req.user._id;
     const uploadResult = await cloudinary.uploader.upload(profileImg);
 
-    res.status(201).json(uploadResult);
+    if (!uploadResult) {
+      return res.status(400).json({ message: "Please add a profile image" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { profileImg: uploadResult.secure_url },
+      { new: true }
+    );
+
+    res.status(200).json(updatedUser);
   } catch (error) {
-    console.log(`Error in the upload image`);
+    console.log(`Error in the upload image ${error.message}`);
+    res.status(400).json({ message: error.message });
   }
-  res.status(200).json({ message: "Profile image updated" });
 };
 
 export { register, login, logout, updateImg };
