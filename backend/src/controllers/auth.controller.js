@@ -119,4 +119,13 @@ const updateImg = async (req, res) => {
   }
 };
 
-export { register, login, logout, updateImg };
+const checkUser = (req, res) => {
+  try {
+    res.status(200).json(req.user);
+  } catch (error) {
+    console.log(`Error in check user ${error.message}`);
+    res.status(400).json(error.message);
+  }
+};
+
+export { register, login, logout, updateImg, checkUser };
