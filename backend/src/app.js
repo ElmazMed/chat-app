@@ -4,6 +4,7 @@ import { connectDb } from "./lib/db.js";
 import cookieParser from "cookie-parser";
 import authRoutes from "./routes/auth.route.js";
 import messageRoutes from "./routes/message.route.js";
+import cors from "cors";
 
 dotenv.config();
 const app = express();
@@ -11,6 +12,12 @@ const port = process.env.PORT || 5001;
 
 app.use(cookieParser());
 app.use(express.json());
+app.use(
+  cors({
+    //origin: here the link of the front end
+    credentials: true,
+  })
+);
 
 app.use("/api/auth", authRoutes);
 app.use("/api/message", messageRoutes);
