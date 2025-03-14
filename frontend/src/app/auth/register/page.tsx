@@ -14,24 +14,15 @@ export default function Register() {
   const { data, isLoading, error } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
 
-  interface User {
-    fullName: string;
-    email: string;
-    password: string;
-  }
-
-  const { fullName, email, password } = form;
-
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (fullName.startsWith(" ") || email.startsWith(" "))
+    if (form.fullName.startsWith(" ") || form.email.startsWith(" "))
       return toast.error("All fields are required.");
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       return toast.error("Invalid email");
 
-    const user: User = { fullName, email, password };
-    dispatch(register(user));
+    dispatch(register(form));
   };
 
   return (

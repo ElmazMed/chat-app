@@ -3,7 +3,7 @@ import axios from "axios";
 import toast from "react-hot-toast";
 
 interface User {
-  fullName: string;
+  fullName?: string;
   email: string;
   password: string;
 }
@@ -34,6 +34,27 @@ export const register = createAsyncThunk(
   }
 );
 
+export const login = createAsyncThunk(
+  "auth/login",
+  async (user: User, thunkApi) => {
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/auth/login",
+        user,
+        {
+          headers: { "Content-Type": "application/json" },
+          withCredentials: true,
+        }
+      );
+      return res.data;
+    } catch (error: any) {
+      toast.error(error.response.data.message);
+
+      return thunkApi.rejectWithValue(error.response.data.message);
+    }
+  }
+);
+
 const initialState: AuthState = { data: null, isLoading: false, error: null };
 
 export const authSlice = createSlice({
@@ -50,6 +71,17 @@ export const authSlice = createSlice({
         (state.isLoading = false), (state.data = action.payload);
       })
       .addCase(register.rejected, (state, action) => {
+        (state.isLoading = false),
+          (state.error = action.error.message || "An error occurred");
+      })
+      .addCase(login.pending, (state) => {
+        state.isLoading = true;
+      })
+
+      .addCase(login.fulfilled, (state, action) => {
+        (state.isLoading = false), (state.data = action.payload);
+      })
+      .addCase(login.rejected, (state, action) => {
         (state.isLoading = false),
           (state.error = action.error.message || "An error occurred");
       });

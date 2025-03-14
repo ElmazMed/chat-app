@@ -1,38 +1,27 @@
 "use client";
-import axios from "axios";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { login } from "@/lib/slices/authSlice";
+import { Toaster } from "react-hot-toast";
 
 export default function Login() {
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
+  const { data, isLoading, error } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    try {
-      const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
-        form,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        }
-      );
-      console.log("====================================");
-      console.log(res.data);
-      console.log("====================================");
-    } catch (error) {
-      console.log(`Error in the login UI ${error}`);
-    }
+    dispatch(login(form));
   };
-
   return (
     <>
+      <Toaster />
+
       <div className="w-full h-screen flex items-center justify-center">
         <div className="fieldset w-1/4 bg-base-200 border border-base-300 p-4 shadow-sm rounded-box">
           <form onSubmit={handleSubmit} className="flex flex-col gap-7">
@@ -58,7 +47,13 @@ export default function Login() {
               />
             </div>
 
-            <button className="btn btn-neutral mb-3">Login</button>
+            <button className="btn btn-neutral mb-3">
+              {isLoading ? (
+                <span className="loading loading-dots loading-sm"></span>
+              ) : (
+                "Login"
+              )}
+            </button>
           </form>
           <div>
             <p className="text-[0.9rem] text-center">

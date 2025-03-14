@@ -53,18 +53,21 @@ const login = async (req, res) => {
 
   try {
     if (!email || !password) {
-      res.status(400).json({ message: "Please add your email and password" });
+      return res
+        .status(400)
+        .json({ message: "Please add your email and password" });
     }
 
     const user = await User.findOne({ email });
-    const comparedPassword = await bcrypt.compare(password, user.password);
 
     if (!user) {
-      res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
+    const comparedPassword = await bcrypt.compare(password, user.password);
+
     if (!comparedPassword) {
-      res.status(400).json({ message: "Invalid credentials" });
+      return res.status(400).json({ message: "Invalid credentials" });
     }
 
     generateToken(user._id, res);
