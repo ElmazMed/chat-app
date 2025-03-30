@@ -8,10 +8,17 @@ interface User {
   password: string;
 }
 interface AuthState {
-  data: null | any;
+  data: User | null;
+  isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
 }
+const initialState: AuthState = {
+  data: null,
+  isAuthenticated: false,
+  isLoading: false,
+  error: null,
+};
 export const register = createAsyncThunk(
   "auth/register",
   async (user: User, thunkApi) => {
@@ -27,9 +34,12 @@ export const register = createAsyncThunk(
         }
       );
       return res.data;
-    } catch (error: any) {
-      toast.error(error.response.data.message);
-      return thunkApi.rejectWithValue(error.response.data.message);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.message || "An error occurred";
+        toast.error(message);
+        return thunkApi.rejectWithValue(message);
+      }
     }
   }
 );
@@ -47,20 +57,59 @@ export const login = createAsyncThunk(
         }
       );
       return res.data;
-    } catch (error: any) {
-      toast.error(error.response.data.message);
-
-      return thunkApi.rejectWithValue(error.response.data.message);
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.message || "An error occurred";
+        toast.error(message);
+        return thunkApi.rejectWithValue(message);
+      }
     }
   }
 );
 
-const initialState: AuthState = { data: null, isLoading: false, error: null };
+export const logout = createAsyncThunk("auth/logout", async (_, thunkApi) => {
+  try {
+    await axios.post(
+      "http://localhost:5000/api/auth/logout",
+      {},
+      { withCredentials: true }
+    );
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const message = error.response?.data?.message || "An error occurred";
+      toast.error(message);
+      return thunkApi.rejectWithValue(message);
+    }
+  }
+});
+
+export const checkUser = createAsyncThunk(
+  "auth/check-user",
+  async (_, thunkApi) => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/auth/check-user", {
+        withCredentials: true,
+      });
+      return res.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.message || "An error occurred";
+        return thunkApi.rejectWithValue(message);
+      }
+    }
+  }
+);
 
 export const authSlice = createSlice({
   name: "auth",
   initialState,
-  reducers: {},
+  reducers: {
+    clearAuthState: (state) => {
+      state.data = null;
+      state.isAuthenticated = false;
+      state.error = null;
+    },
+  },
 
   extraReducers: (builder) => {
     builder
@@ -68,24 +117,56 @@ export const authSlice = createSlice({
         state.isLoading = true;
       })
       .addCase(register.fulfilled, (state, action) => {
-        (state.isLoading = false), (state.data = action.payload);
+        state.isLoading = false;
+        state.data = action.payload;
+        state.isAuthenticated = true;
       })
       .addCase(register.rejected, (state, action) => {
-        (state.isLoading = false),
-          (state.error = action.error.message || "An error occurred");
+        state.isLoading = false;
+        state.error = action.error.message || "An error occurred";
+        state.isAuthenticated = false;
       })
       .addCase(login.pending, (state) => {
         state.isLoading = true;
       })
 
       .addCase(login.fulfilled, (state, action) => {
-        (state.isLoading = false), (state.data = action.payload);
+        state.isLoading = false;
+        state.data = action.payload;
+        state.isAuthenticated = true;
       })
       .addCase(login.rejected, (state, action) => {
-        (state.isLoading = false),
-          (state.error = action.error.message || "An error occurred");
+        state.isLoading = false;
+        state.error = action.error.message || "An error occurred";
+        state.isAuthenticated = false;
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.error = action.error.message || "An error occurred";
+        state.isLoading = false;
+      })
+      .addCase(logout.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.isLoading = false;
+        state.data = null;
+        state.isAuthenticated = false;
+      })
+      .addCase(checkUser.rejected, (state, action) => {
+        state.error = action.error.message || "An error occurred";
+        state.isLoading = false;
+        state.isAuthenticated = false;
+      })
+      .addCase(checkUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(checkUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.data = action.payload;
+        state.isAuthenticated = true;
       });
   },
 });
 
+export const { clearAuthState } = authSlice.actions;
 export default authSlice.reducer;

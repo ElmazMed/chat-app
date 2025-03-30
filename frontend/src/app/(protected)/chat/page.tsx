@@ -1,5 +1,14 @@
-import React from "react";
+"use client";
+import NavBar from "@/components/NavBar";
+import ProtectRoutes from "@/components/ProtectRoutes";
 
 export default function Chat() {
-  return <div>Chat</div>;
+  return (
+    <ProtectRoutes>
+      <>
+        <NavBar />
+        <p>Chat page</p>
+      </>
+    </ProtectRoutes>
+  );
 }
