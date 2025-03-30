@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useAppSelector } from "@/lib/hooks";
 import { useRouter } from "next/navigation";
+import Loader from "./Loader";
 
 export default function ProtectRoutes({
   children,
@@ -17,11 +18,9 @@ export default function ProtectRoutes({
     }
   }, [router, isAuthenticated, isLoading]);
 
-  if (isLoading)
-    return <span className="loading loading-infinity loading-xl"></span>;
+  if (isLoading) return <Loader />;
 
-  if (!isAuthenticated) {
-    return <span className="loading loading-infinity loading-xl"></span>;
-  }
+  if (!isAuthenticated) return <Loader />;
+
   return <>{children}</>;
 }

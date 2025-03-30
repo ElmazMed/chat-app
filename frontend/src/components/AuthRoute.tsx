@@ -2,6 +2,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/lib/hooks";
+import Loader from "./Loader";
 
 export default function AuthRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -11,8 +12,7 @@ export default function AuthRoute({ children }: { children: React.ReactNode }) {
     if (!isLoading && isAuthenticated) router.push("/chat");
   }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading)
-    return <span className="loading loading-infinity loading-xl"></span>;
+  if (isLoading) return <Loader />;
 
   return <>{children}</>;
 }
