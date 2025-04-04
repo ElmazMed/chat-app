@@ -4,8 +4,9 @@ import toast from "react-hot-toast";
 
 interface User {
   fullName?: string;
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
+  profileImg?: string;
 }
 interface AuthState {
   data: User | null;
@@ -100,6 +101,26 @@ export const checkUser = createAsyncThunk(
   }
 );
 
+export const updateImg = createAsyncThunk(
+  "auth/update-img",
+  async (user: User, thunkApi) => {
+    try {
+      const res = await axios.put(
+        "http://localhost:5000/api/auth/update-image",
+        user,
+        { withCredentials: true }
+      );
+      return res.data;
+    } catch (error: unknown) {
+      if (axios.isAxiosError(error)) {
+        const message = error.response?.data?.message || "An error occurred";
+        toast.error(message);
+        return thunkApi.rejectWithValue(message);
+      }
+    }
+  }
+);
+
 export const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -164,6 +185,17 @@ export const authSlice = createSlice({
         state.isLoading = false;
         state.data = action.payload;
         state.isAuthenticated = true;
+      })
+      .addCase(updateImg.rejected, (state, action) => {
+        state.error = action.error.message || "An error occurred";
+        state.isLoading = false;
+      })
+      .addCase(updateImg.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(updateImg.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.data = action.payload;
       });
   },
 });
