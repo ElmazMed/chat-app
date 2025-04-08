@@ -7,18 +7,13 @@ import { Camera } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks";
 import { ChangeEvent, useState } from "react";
 import { updateImg } from "@/lib/slices/authSlice";
+
 export default function Profile() {
   const { data, isLoading } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const [selectImg, setSelectImg] = useState<string | undefined>(
     data?.profileImg
   );
-
-  const user = {
-    fullName: data?.fullName,
-    email: data?.email,
-    profileImg: data?.profileImg,
-  };
 
   const handleImgUpload = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -52,7 +47,7 @@ export default function Profile() {
                   <Image
                     src={
                       (typeof selectImg === "string" ? selectImg : undefined) ||
-                      user.profileImg ||
+                      data?.profileImg ||
                       userImg
                     }
                     width={112}
@@ -84,7 +79,7 @@ export default function Profile() {
                 type="text"
                 className="bg-[#0f172a] rounded-lg border-slate-600 border-1 p-3 w-full outline-none cursor-not-allowed"
                 placeholder="Full name"
-                value={user.fullName}
+                value={data?.fullName}
                 readOnly
               />
             </div>
@@ -94,7 +89,7 @@ export default function Profile() {
                 type="text"
                 className="bg-[#0f172a] rounded-lg border-slate-600 border-1 p-3 w-full outline-none cursor-not-allowed"
                 placeholder="example@example.com"
-                value={user.email}
+                value={data?.email}
                 readOnly
               />
             </div>

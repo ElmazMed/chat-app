@@ -91,6 +91,7 @@ export const checkUser = createAsyncThunk(
       const res = await axios.get("http://localhost:5000/api/auth/check-user", {
         withCredentials: true,
       });
+
       return res.data;
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
