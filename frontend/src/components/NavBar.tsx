@@ -12,7 +12,7 @@ export default function NavBar() {
   };
   return (
     <>
-      <div className="flex justify-between p-4">
+      <nav className="flex justify-between p-4">
         <Link href="/chat">
           <h1 className="text-lg font-semibold">Chat App</h1>
         </Link>
@@ -33,7 +33,7 @@ export default function NavBar() {
             Logout
           </button>
         </div>
-      </div>
+      </nav>
     </>
   );
 }
